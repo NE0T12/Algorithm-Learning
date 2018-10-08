@@ -147,11 +147,6 @@
     <Text Include="in2.txt" />
     <Text Include="in3.txt" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="avl.cpp_bak" />
-    <None Include="avl.cpp_bak1" />
-    <None Include="avl.cpp_ok_bak" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

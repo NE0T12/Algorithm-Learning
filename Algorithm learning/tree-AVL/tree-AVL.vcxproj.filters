@@ -33,15 +33,4 @@
       <Filter>资源文件</Filter>
     </Text>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="avl.cpp_bak">
-      <Filter>源文件</Filter>
-    </None>
-    <None Include="avl.cpp_bak1">
-      <Filter>源文件</Filter>
-    </None>
-    <None Include="avl.cpp_ok_bak">
-      <Filter>源文件</Filter>
-    </None>
-  </ItemGroup>
 </Project>

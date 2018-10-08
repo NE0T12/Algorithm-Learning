@@ -283,8 +283,10 @@ static void balance_tree_real(BiTree &T)
 		return;
 
 	if (2 == T->diff || -2 == T->diff)
+	{
 		balance(T, T);
-	refresh_tree_diff(T);
+		refresh_tree_diff(T);
+	}
 
 	if (T->lchild)
 		balance_tree_real(T->lchild);
@@ -368,20 +370,20 @@ void test0()
 	//DeleteAVL(T, 5);
 	//printf("after delete '5': \n");
 	//delete tree with both child
-	DeleteAVL(T, 7);
-	printf("after delete '7': \n");
-	PreOrderBiTree(T);	printf("\n");
-	MidOrderBiTree(T);	printf("\n");
+	//DeleteAVL(T, 7);
+	//printf("after delete '7': \n");
+	//PreOrderBiTree(T);	printf("\n");
+	//MidOrderBiTree(T);	printf("\n");
 
 	printf("\n");
 }
 
 int main()
 {
-	//freopen("in.txt", "r", stdin);
+	freopen("in.txt", "r", stdin);
 	//freopen("in1.txt", "r", stdin);
 	//freopen("in2.txt", "r", stdin);
-	freopen("in3.txt", "r", stdin);
+	//freopen("in3.txt", "r", stdin);
 
 	test0();
 

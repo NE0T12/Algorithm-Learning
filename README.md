@@ -4,6 +4,8 @@
 
 ## 二叉搜索树（BST）
 
+**参考**：https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%85%83%E6%90%9C%E5%B0%8B%E6%A8%B9
+
 - #### 关键操作
 
   删除：
@@ -25,6 +27,8 @@
 ## 平衡二叉搜索树
 
 ### AVL树
+
+**参考**：https://zh.wikipedia.org/wiki/AVL%E6%A0%91
 
 AVL树得名于它的发明者[G. M. Adelson-Velsky](https://zh.wikipedia.org/wiki/%E6%A0%BC%E5%A5%A5%E5%B0%94%E5%90%89%C2%B7%E9%98%BF%E6%9D%B0%E5%B0%94%E6%9D%BE-%E9%9F%A6%E5%88%A9%E6%96%AF%E5%9F%BA)和[E. M. Landis](https://zh.wikipedia.org/w/index.php?title=Evgenii_Landis&action=edit&redlink=1)，他们在1962年的论文《An algorithm for the organization of information》中发表了它。
 
@@ -63,3 +67,69 @@ AVL树得名于它的发明者[G. M. Adelson-Velsky](https://zh.wikipedia.org/wi
 
 ---
 
+### 红黑树
+
+**参考**：https://zh.wikipedia.org/wiki/%E7%BA%A2%E9%BB%91%E6%A0%91
+
+英文：Red–black tree（RBT）
+
+- #### 时间复杂度与空间复杂度
+
+  > 查找、插入和删除在平均和最坏情况下的时间复杂度都是![O(\log{n})](https://wikimedia.org/api/rest_v1/media/math/render/svg/653ab6d6fd99537d220f179d2591955ff4f37b99)。
+  >
+  > 红黑树相对于AVL树来说，牺牲了部分平衡性以换取插入/删除操作时少量的旋转操作，整体来说性能要优于AVL树
+
+- #### 性质
+
+  > 红黑树是每个节点都带有*颜色*属性的[二叉查找树](https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%85%83%E6%90%9C%E5%B0%8B%E6%A8%B9)，颜色为*红色*或*黑色*。在二叉查找树强制一般要求以外，对于任何有效的红黑树我们增加了如下的额外要求：
+  >
+  > 1. 节点是红色或黑色。
+  > 2. 根是黑色。
+  > 3. 所有叶子都是黑色（叶子是NIL节点，也就是说NIL节点是黑色）。
+  > 4. 每个红色节点必须有两个黑色的子节点。（从每个叶子到根的所有路径上不能有两个连续的红色节点。）
+  > 5. 从任一节点到其每个叶子的所有[简单路径](https://zh.wikipedia.org/wiki/%E9%81%93%E8%B7%AF_(%E5%9B%BE%E8%AE%BA))都包含相同数目的黑色节点。
+  >
+  > 下面是一个具体的红黑树的图例：
+  >
+  >
+  >
+  > [![An example of a red-black tree](assets/450px-Red-black_tree_example.svg-1537754734992.png)](https://zh.wikipedia.org/wiki/File:Red-black_tree_example.svg)
+  >
+  > 这些约束确保了红黑树的关键特性：**从根到叶子的最长的可能路径不多于最短的可能路径的两倍长**。结果是这个树大致上是平衡的。因为操作比如插入、删除和查找某个值的最坏情况时间都要求与树的高度成比例，这个在高度上的理论上限允许红黑树在最坏情况下都是高效的，而不同于普通的[二叉查找树](https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%9F%A5%E6%89%BE%E6%A0%91)。
+  >
+  >
+
+- #### 实现
+
+  - #### 插入
+
+    **关键：**是调整颜色及旋转
+
+    函数`void RedBlackTree::adjust_color(BiTree &T)`调整当前插入的结点T的颜色，可能需要旋转（新插入的结点默认颜色为**红色**）
+
+    > #### CASE1:
+    >
+    > >  T是根结点
+    >
+    > #### CASE2:
+    >
+    > > T的父节点为黑，则无需做什么
+    >
+    > #### CASE3:
+    >
+    > > T的父节点为红，叔父结点也为红
+    >
+    > #### CASE4:
+    >
+    > > 父节点为红，叔父结点为黑或空
+    > >
+    > > 细分4种情况：
+    > >
+    > > 1. 左右
+    > > 2. 右左
+    > > 3. 左左
+    > > 4. 右右
+
+    **注意**：旋转时候注意调换颜色以及parent父节点指向
+
+  - #### 删除
