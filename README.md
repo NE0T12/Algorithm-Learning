@@ -103,9 +103,9 @@ AVL树得名于它的发明者[G. M. Adelson-Velsky](https://zh.wikipedia.org/wi
 
   - #### 插入
 
-    **关键：**是调整颜色及旋转
+    **关键：**调整颜色及旋转
 
-    函数`void RedBlackTree::adjust_color(BiTree &T)`调整当前插入的结点T的颜色，可能需要旋转（新插入的结点默认颜色为**红色**）
+    函数`void RedBlackTree::insert_adjust_color(BiTree &T)`调整当前插入的结点T的颜色，可能需要旋转（新插入的结点默认颜色为**红色**）
 
     > #### CASE1:
     >
@@ -133,3 +133,83 @@ AVL树得名于它的发明者[G. M. Adelson-Velsky](https://zh.wikipedia.org/wi
     **注意**：旋转时候注意调换颜色以及parent父节点指向
 
   - #### 删除
+
+    > - 注意删除中引入了非空黑色叶子结点 nil，不存储数据，充当所有原来叶子结点的叶子。这是为了删除操作的实现方便而引入的。
+    >
+    > - 调用顺序：DeleteRBT_real(T, key); ----> delete_one_child(T); -----> delete_adjust_color(T);
+    >
+    > - 函数
+    >
+    >   1. `Status DeleteRBT_real(BiTree &T, KeyType key);`
+    >
+    >      记待删除结点为 T
+    >
+    >      删除的时候，把问题转化为删除一个孩子的情况：
+    >
+    >      - T的右孩子为空
+    >      - T的左孩子为空(找T的右子树下的最小值smallest_child和T的值兑换，然后转化成对smallest_child进行删除操作)
+    >
+    >      若左右孩子都为空，则把其中一个当作孩子
+    >
+    >   2. `void delete_one_child(BiTree &T);`
+    >
+    >      只有 T和T->child都是黑色才需进入 delete_adjust_color 调节颜色
+    >
+    >   3. `void delete_adjust_color(BiTree &T);`
+    >
+    >      注意：记P->X->T  ==> P->T ，X为上一步中delete_one_child 中要删除的结点，而这里调节的 T 是 X 的孩子
+    >
+    >      ### 颜色调节分6种情况：
+    >
+    >      记待调节颜色结点为 T, T的父母为P，T的兄弟为S，S的左孩子为SL，S的右孩子为SR
+    >
+    >      **下面图中灰色结点表示颜色待定（红色或黑色）**
+    >
+    >      >  实际上第一次递归进来T的情况只可能是case1或case2或case3, 而case3是需要转化成case2，最终都是在递归后由case2转化为case4或case5或case6（此时新的S（相当于原来的SL或SR）只能为黑色，不可能为红色）
+    >
+    >      #### case1:
+    >
+    >      ![草图 (assets/草图 (1).png)](C:/Users/qq183/Pictures/rbt/草图 (1).png)
+    >
+    >      #### case2:
+    >
+    >      ![草图 (assets/草图 (2).png)](C:/Users/qq183/Pictures/rbt/草图 (2).png)
+    >
+    >      #### case3:
+    >
+    >      ![草图 (assets/草图 (3).png)](C:/Users/qq183/Pictures/rbt/草图 (3).png)
+    >
+    >      #### case4:
+    >
+    >      ![草图 (assets/草图 (4).png)](C:/Users/qq183/Pictures/rbt/草图 (4).png)
+    >
+    >      case4这里就完成调节颜色了
+    >
+    >      #### case5:
+    >
+    >      ![草图 (assets/草图 (5).png)](C:/Users/qq183/Pictures/rbt/草图 (5).png)
+    >
+    >      实际上case5之后是需要紧接着case6的操作才算完成颜色调节
+    >
+    >      #### case6:
+    >
+    >      实际上case6又涵盖了一些情况：
+    >
+    >      1. 紧接着处理case5的情况
+    >
+    >         ![草图 (assets/草图 (6).png)](C:/Users/qq183/Pictures/rbt/草图 (6).png)
+    >
+    >      2. T是左子树，S是黑，S->lchild是黑，S->rchild是红  或  T是右子树，S是黑，S->lchild是红，S->rchild是黑
+    >
+    >         ![草图 (assets/草图 (7).png)](C:/Users/qq183/Pictures/rbt/草图 (7).png)
+    >
+    >      3. T是左子树，S是黑，S->lchild是红，S->rchild是红  或  T是右子树，S是黑，S->lchild是红，S->rchild是红
+    >
+    >         ![草图 (assets/草图 (8).png)](C:/Users/qq183/Pictures/rbt/草图 (8).png)
+    >
+    >
+    >
+    > ![](assets/IMG_20181010_175443.jpg)
+    >
+    > ![IMG_20181010_175529](assets/IMG_20181010_175529.jpg)
+

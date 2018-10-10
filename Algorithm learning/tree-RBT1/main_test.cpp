@@ -1,4 +1,4 @@
-/*插入InsertRBT是可以的，但DeleteRBT不能正确运行*/
+/*插入InsertRBT是可以的，*/
 #include "rbt.h"
 
 void printBiTreeNode(BiTree T)
@@ -9,7 +9,7 @@ void printBiTreeNode(BiTree T)
 
 void testInsert()
 {
-	freopen("in.txt", "r", stdin);
+	freopen("in2.txt", "r", stdin);
 	RedBlackTree redBlackTree;
 	redBlackTree.CreateRBT();
 

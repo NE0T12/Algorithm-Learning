@@ -1,0 +1,203 @@
+#include "rbt.h"
+
+void RedBlackTree::CreateRBT()
+{
+	ElemType e;
+	while (scanf("%d", &e.key) == 1)
+		InsertRBT(e);
+	printf("\n");
+}
+
+Status RedBlackTree::InsertRBT(ElemType &e)
+{
+	bool s = InsertRBT_real(_root, _root, e);
+	return s;
+}
+
+Status RedBlackTree::InsertRBT_real(BiTree &T, BiTree &parent, ElemType &e)
+{
+	if (!T)
+	{
+		BiTree s = new BiTreeNode;
+		s->data = e; s->lchild = s->rchild = NULL;	s->parent = parent;
+		s->color = RED;
+		T = s;
+
+		insert_adjust_color(T);
+
+		return true;
+	}
+	else if (e.key == T->data.key)
+		return false;//关键字等于e.key的数据元素，返回錯誤
+	else if (e.key < T->data.key)
+		return InsertRBT_real(T->lchild, T, e);
+	else if (e.key > T->data.key)
+		return InsertRBT_real(T->rchild, T, e);
+
+}
+
+void RedBlackTree::insert_adjust_color(BiTree &T)
+{
+	// case1: 根结点
+	if (NULL == T->parent) 
+		T->color = BLACK;
+	else
+	{
+		// case2: 父节点为黑
+		if (BLACK == T->parent->color)
+			return;
+		else
+		{
+			// case3: 父节点为红，叔父结点也为红
+			if (uncle(T) && RED == uncle(T)->color)
+			{
+				T->parent->color = BLACK;
+				uncle(T)->color = BLACK;
+				grandparent(T)->color = RED;
+				insert_adjust_color(grandparent(T)); //递归调整祖父结点颜色
+			}
+			else
+			{
+				// case4: 父节点为红，叔父结点为黑或空
+				if (T == T->parent->rchild && T->parent == grandparent(T)->lchild) //左右
+				{
+					T->color = BLACK; grandparent(T)->color = RED;
+
+					BiTree parent = T->parent; 
+					//rotate_left(T->parent); 
+					//T = parent->lchild;
+					//rotate_right(grandparent(T));
+					rotate_left(parent); //注意这里旋转后T受影响，会被释放清零
+					rotate_right(parent->parent);
+				}
+				else if (T == T->parent->lchild && T->parent == grandparent(T)->rchild) //右左
+				{
+					T->color = BLACK; grandparent(T)->color = RED;
+
+					BiTree parent = T->parent;
+					rotate_right(parent);
+					rotate_left(parent->parent);
+				}
+				else if (T == T->parent->lchild && T->parent == grandparent(T)->lchild) //左左
+				{
+					T->parent->color = BLACK;  grandparent(T)->color = RED;
+					rotate_right(grandparent(T));
+				}
+				else if (T == T->parent->rchild && T->parent == grandparent(T)->rchild) //右右
+				{
+					T->parent->color = BLACK;  grandparent(T)->color = RED;
+					rotate_left(grandparent(T));
+				}
+			}
+		}
+	}
+
+}
+
+inline
+BiTree & RedBlackTree::uncle(BiTree T)
+{
+	if (grandparent(T)->lchild == T->parent)
+		return grandparent(T)->rchild;
+	else if (grandparent(T)->rchild == T->parent)
+		return grandparent(T)->lchild;
+		
+}
+
+inline
+BiTree & RedBlackTree::grandparent(BiTree T)
+{
+	return T->parent->parent;
+
+}
+
+//注意：旋转要考虑parent指向改变，以及颜色调换
+void RedBlackTree::rotate_left(BiTree & T)
+{
+	BiTree q = new BiTreeNode;
+	q->data = T->data; q->lchild = T->lchild;
+	if (T->lchild)
+		T->lchild->parent = q;
+	q->color = T->color;
+
+	BiTree tmp_rchild = T->rchild;
+	T->data = tmp_rchild->data; T->color = tmp_rchild->color;
+
+	q->rchild = tmp_rchild->lchild;
+	if (tmp_rchild->lchild)
+		tmp_rchild->lchild->parent = q;
+
+	T->lchild = q;	q->parent = T;
+
+	T->rchild = tmp_rchild->rchild;
+	if (tmp_rchild->rchild)
+		tmp_rchild->rchild->parent = T;
+
+	delete tmp_rchild;
+}
+
+void RedBlackTree::rotate_right(BiTree & T)
+{
+	BiTree q = new BiTreeNode;
+	q->data = T->data; q->rchild = T->rchild;
+	if (T->rchild)
+		T->rchild->parent = q;
+	q->color = T->color;
+
+	BiTree tmp_lchild = T->lchild;
+	T->data = tmp_lchild->data; T->color = tmp_lchild->color;
+
+	q->lchild = tmp_lchild->rchild;
+	if (tmp_lchild->rchild)
+		tmp_lchild->rchild->parent = q;
+
+	T->rchild = q; q->parent = T;
+
+	T->lchild = tmp_lchild->lchild;
+	if (tmp_lchild->lchild)
+		tmp_lchild->lchild->parent = T;
+
+	delete tmp_lchild;
+}
+
+void RedBlackTree::PreOrderVisit(void (*function)(BiTree))
+{
+	PreOrderVisit_real(_root, function);
+}
+
+void RedBlackTree::MidOrderVisit(void(*function)(BiTree))
+{
+	MidOrderVisit_real(_root, function);
+}
+
+void RedBlackTree::LastOrderVisit(void(*function)(BiTree))
+{
+	LastOrderVisit_real(_root, function);
+}
+
+void RedBlackTree::PreOrderVisit_real(BiTree T, void(*function)(BiTree))
+{
+	function(T);
+	if (T->lchild)
+		PreOrderVisit_real(T->lchild, function);
+	if (T->rchild)
+		PreOrderVisit_real(T->rchild, function);
+}
+
+void RedBlackTree::MidOrderVisit_real(BiTree T, void(*function)(BiTree))
+{
+	if (T->lchild)
+		MidOrderVisit_real(T->lchild, function);
+	function(T);
+	if (T->rchild)
+		MidOrderVisit_real(T->rchild, function);
+}
+
+void RedBlackTree::LastOrderVisit_real(BiTree T, void(*function)(BiTree))
+{
+	if (T->lchild)
+		LastOrderVisit_real(T->lchild, function);
+	if (T->rchild)
+		LastOrderVisit_real(T->rchild, function);
+	function(T);
+}

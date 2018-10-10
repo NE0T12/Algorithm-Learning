@@ -16,10 +16,10 @@ Status RedBlackTree::InsertRBT(ElemType &e)
 
 Status RedBlackTree::InsertRBT_real(BiTree &T, BiTree &parent, ElemType &e)
 {
-	if (!T)
+	if (!T || T == _nil)
 	{
 		BiTree s = new BiTreeNode;
-		s->data = e; s->lchild = s->rchild = NULL;	s->parent = parent;
+		s->data = e; s->lchild = s->rchild = _nil;	s->parent = parent;
 		s->color = RED;
 		T = s;
 
@@ -49,7 +49,7 @@ void RedBlackTree::insert_adjust_color(BiTree &T)
 		else
 		{
 			// case3: 父节点为红，叔父结点也为红
-			if (uncle(T) && RED == uncle(T)->color)
+			if (RED == uncle(T)->color)
 			{
 				T->parent->color = BLACK;
 				uncle(T)->color = BLACK;
@@ -97,7 +97,7 @@ Status RedBlackTree::DeleteRBT(KeyType key)
 
 Status RedBlackTree::DeleteRBT_real(BiTree &T, KeyType key)
 {
-	if (!T)
+	if (!T || T == _nil)
 		return false;
 	else if (key < T->data.key)
 		return DeleteRBT_real(T->lchild, key);
@@ -105,7 +105,7 @@ Status RedBlackTree::DeleteRBT_real(BiTree &T, KeyType key)
 		return DeleteRBT_real(T->rchild, key);
 	else
 	{
-		if(!T->rchild)
+		if(T->rchild == _nil)
 			delete_one_child(T);
 		else
 		{
@@ -120,7 +120,7 @@ Status RedBlackTree::DeleteRBT_real(BiTree &T, KeyType key)
 
 BiTree & RedBlackTree::get_smallest_child(BiTree &T)
 {
-	if (!T->lchild)
+	if (T->lchild == _nil)
 		return T;
 	else
 		return get_smallest_child(T->lchild);
@@ -128,23 +128,19 @@ BiTree & RedBlackTree::get_smallest_child(BiTree &T)
 
 void RedBlackTree::delete_one_child(BiTree &T)
 {
-	if (!T->parent && !T->lchild && !T->rchild)
+	if (!T->parent && T->lchild == _nil && T->rchild == _nil)
 	{
 		delete T; T = NULL;
 		return;
 	}
 
-	BiTree child = (T->lchild == NULL ? T->rchild : T->lchild);
+	BiTree child = (T->lchild == _nil ? T->rchild : T->lchild);
 	if (!T->parent)
 	{
 		child->parent = NULL;
 		delete T;
 		T = child;
-		return;
-	}
-	if (!child) //T是非空叶子
-	{
-		delete T;
+		T->color = BLACK;
 		return;
 	}
 
@@ -154,8 +150,7 @@ void RedBlackTree::delete_one_child(BiTree &T)
 	else
 		T->parent->rchild = child;
 
-	if(child)
-		child->parent = T->parent;
+	child->parent = T->parent;
 
 
 	if (T->color == BLACK)
@@ -187,24 +182,19 @@ void RedBlackTree::delete_adjust_color(BiTree &T) //T->color = BLACK;
 	}
 
 	/*case3 */
-	if (!sibling(T)) //这里可能是递归后再次进来，所以要对sibling(T)进行判空
-	{
-		T->parent->color = BLACK;
-		return;
-	}
 	if (T->parent->color == BLACK
 			&& sibling(T)->color == BLACK
-			&& (!sibling(T)->lchild || sibling(T)->lchild->color == BLACK) //这对括号里意思：sibling(T)的左孩子是黑色（注意：空结点代表黑色叶子）
-			&& (!sibling(T)->rchild || sibling(T)->rchild->color == BLACK)
+			&& sibling(T)->lchild->color == BLACK
+			&& sibling(T)->rchild->color == BLACK
 		)
 	{
 		sibling(T)->color = RED; //实际上这里是又变成了case2
 		delete_adjust_color(T->parent); //递归调整
 	}
-	else if (T->parent->color == RED
+	else if (T->parent->color == RED	//case4
 				&& sibling(T)->color == BLACK
-				&& (!sibling(T)->lchild || sibling(T)->lchild->color == BLACK) //这对括号里意思：sibling(T)的左孩子是黑色（注意：空结点代表黑色叶子）
-				&& (!sibling(T)->rchild || sibling(T)->rchild->color == BLACK)
+				&& sibling(T)->lchild->color == BLACK
+				&& sibling(T)->rchild->color == BLACK
 			 )
 	{
 		T->parent->color = BLACK;
@@ -212,11 +202,12 @@ void RedBlackTree::delete_adjust_color(BiTree &T) //T->color = BLACK;
 	}
 	else
 	{
+		//case5
 		if (sibling(T)->color == BLACK)
 		{
 			if (T == T->parent->lchild
-				&& (sibling(T)->lchild && sibling(T)->lchild->color == RED)
-				&& (!sibling(T)->rchild || sibling(T)->rchild->color == BLACK)
+				&& sibling(T)->lchild->color == RED
+				&& sibling(T)->rchild->color == BLACK
 				)
 			{
 				sibling(T)->color = RED;
@@ -224,8 +215,8 @@ void RedBlackTree::delete_adjust_color(BiTree &T) //T->color = BLACK;
 				rotate_right(sibling(T));
 			}
 			else if (T == T->parent->rchild
-						&& (!sibling(T)->lchild || sibling(T)->lchild->color == BLACK)
-						&& (sibling(T)->rchild && sibling(T)->rchild->color == RED)
+						&& sibling(T)->lchild->color == BLACK
+						&& sibling(T)->rchild->color == RED
 					 )
 			{
 				sibling(T)->color = RED;
@@ -234,18 +225,17 @@ void RedBlackTree::delete_adjust_color(BiTree &T) //T->color = BLACK;
 			}
 		}
 
+		//case6
 		sibling(T)->color = T->parent->color;
 		T->parent->color = BLACK;
 		if (T == T->parent->lchild)
 		{
-			if(sibling(T)->rchild)
-				sibling(T)->rchild->color = BLACK;
+			sibling(T)->rchild->color = BLACK;
 			rotate_left(T->parent);
 		}
 		else
 		{
-			if(sibling(T)->lchild)
-				sibling(T)->lchild->color = BLACK;
+			sibling(T)->lchild->color = BLACK;
 			rotate_right(T->parent);
 		}
 	}
@@ -342,7 +332,7 @@ void RedBlackTree::rotate_left(BiTree & T)
 	BiTree r = T->rchild;
 
 	T->rchild = r->lchild;
-	if (r->lchild)
+	if (r->lchild && r->lchild != _nil)
 		r->lchild->parent = T;
 
 	r->lchild = T;
@@ -366,7 +356,7 @@ void RedBlackTree::rotate_right(BiTree & T)
 	BiTree l = T->lchild;
 
 	T->lchild = l->rchild;
-	if (l->rchild)
+	if (l->rchild && l->rchild != _nil)
 		l->rchild->parent = T;
 
 	l->rchild = T;
@@ -401,7 +391,8 @@ void RedBlackTree::LastOrderVisit(void(*function)(BiTree))
 
 void RedBlackTree::PreOrderVisit_real(BiTree T, void(*function)(BiTree))
 {
-	function(T);
+	if(T != _nil)
+		function(T);
 	if (T->lchild)
 		PreOrderVisit_real(T->lchild, function);
 	if (T->rchild)
@@ -412,7 +403,8 @@ void RedBlackTree::MidOrderVisit_real(BiTree T, void(*function)(BiTree))
 {
 	if (T->lchild)
 		MidOrderVisit_real(T->lchild, function);
-	function(T);
+	if (T != _nil)
+		function(T);
 	if (T->rchild)
 		MidOrderVisit_real(T->rchild, function);
 }
@@ -423,5 +415,6 @@ void RedBlackTree::LastOrderVisit_real(BiTree T, void(*function)(BiTree))
 		LastOrderVisit_real(T->lchild, function);
 	if (T->rchild)
 		LastOrderVisit_real(T->rchild, function);
-	function(T);
+	if (T != _nil)
+		function(T);
 }
